@@ -6,6 +6,7 @@ import { connect, isConnected, request } from "@stacks/connect";
 import { CheckCircle, AlertCircle } from "lucide-react";
 import { GitHubTokenManager } from "./github-registration";
 
+
 export function ConnectWallet() {
   const [githubUsername, setGithubUsername] = useState<string>("");
   const [connected, setConnected] = useState<boolean>(false);
@@ -20,6 +21,9 @@ export function ConnectWallet() {
 
   const router = useRouter();
 
+
+  
+
   useEffect(() => {
 
     
@@ -27,6 +31,11 @@ export function ConnectWallet() {
       try {
         if (isConnected()) {
           setConnected(true);
+          // check if a github address mapped to this wallet address.
+
+          // if mapped already, just navigate
+          
+
           return;
         }
         const res = await connect();
@@ -61,17 +70,20 @@ export function ConnectWallet() {
     }
 
     
-    // //saving the wallet github mapping to blockchain
-    // try {
-    //   const  result = await manager.simulateRegister(githubUsername, CONTRACT_ADDRESS);
-    //   console.log(result)
-    //   const senderAddress = await getSenderAddress("testnet");
-    //   const owner = await manager.getWalletByGitHub(githubUsername, senderAddress);
+    //saving the wallet github mapping to blockchain
+    try {
+     // this is for testing normal code is below 
+      const  result = await manager.simulateRegister(githubUsername, CONTRACT_ADDRESS);
+      console.log(result)
+      
+
+      const senderAddress = await getSenderAddress("testnet");
+      const owner = await manager.getWalletByGitHub(githubUsername, senderAddress);
 
 
-    // } catch(error){
-    //   console.error(error);
-    // }
+    } catch(error){
+      console.error(error);
+    }
 
     //handling navigation/validation here
     setMessage({ type: "success", text: `GitHub username saved: ${githubUsername}` });
