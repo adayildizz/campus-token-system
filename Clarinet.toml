@@ -1,5 +1,5 @@
 [project]
-name = "stacks-hackathon"
+name = "campus-token-system"
 description = ""
 authors = []
 telemetry = false
@@ -13,8 +13,12 @@ cache_dir = "./.cache"
 passes = ["check_checker"]
 check_checker = { trusted_sender = false, trusted_caller = false, callee_filter = false }
 
-[contracts.fungible-token]
-path = "contracts/fungible-token.clar"
+[contracts.non-fungible-token]
+path = "contracts/non-fungible-token.clar"
+
+
+[contracts.github-registry]
+path = "contracts/github-registry.clar"
 # Check-checker settings:
 # trusted_sender: if true, inputs are trusted after tx_sender has been checked.
 # trusted_caller: if true, inputs are trusted after contract-caller has been checked.

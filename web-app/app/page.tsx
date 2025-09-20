@@ -1,4 +1,4 @@
-import { ConnectWallet } from "./components/connection-form";
+import { ConnectWallet } from "../components/connection-form";
 
 export default function Home() {
   

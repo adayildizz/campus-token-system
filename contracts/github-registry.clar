@@ -1,17 +1,16 @@
-
 ;; ---------- Errors ----------
 (define-constant ERR_ALREADY_REGISTERED (err u200))
-(define-constant ERR_USERNAME_TAKEN     (err u201))
-(define-constant ERR_NOT_REGISTERED     (err u202))
-(define-constant ERR_UNAUTHORIZED       (err u203))
-(define-constant ERR_BAD_INPUT          (err u204))
-(define-constant ERR_NOT_INITIALIZED    (err u205))
+(define-constant ERR_USERNAME_TAKEN (err u201))
+(define-constant ERR_NOT_REGISTERED (err u202))
+(define-constant ERR_UNAUTHORIZED (err u203))
+(define-constant ERR_BAD_INPUT (err u204))
+(define-constant ERR_NOT_INITIALIZED (err u205))
 
 ;; ---------- State ----------
 (define-map github-to-address (string-ascii 50) principal)
 (define-map address-to-github principal (string-ascii 50))
-(define-map user-profiles 
-  principal 
+(define-map user-profiles
+  principal
   {
     github-username: (string-ascii 50),
     registration-date: uint,
@@ -36,26 +35,21 @@
   )
 )
 
-(define-private (caller-is-token-contract)
-  (begin
-    (asserts! (is-some (var-get token-contract)) ERR_UNAUTHORIZED)
-    (asserts! (is-some (contract-caller)) ERR_UNAUTHORIZED)
-    (asserts!
-      (is-eq
-        (unwrap! (contract-caller) ERR_UNAUTHORIZED)
-        (unwrap! (var-get token-contract) ERR_UNAUTHORIZED))
-      ERR_UNAUTHORIZED)
-    (ok true)
-  )
-)
-
-;; Allow either the admin *or* the token-contract to proceed
 (define-private (require-updater)
-  (ok
-    (or
-      (is-eq tx-sender (default-to tx-sender (var-get admin))) ;; true if admin is tx-sender
-      (is-ok (caller-is-token-contract))                        ;; true if called by allowed contract
-    ))
+  (let (
+      (is-admin (is-eq tx-sender (default-to tx-sender (var-get admin))))
+      (is-token-contract-caller
+        (match (contract-caller) caller
+          (match (var-get token-contract) token-p
+            (is-eq caller token-p)
+          )
+          false
+        )
+      )
+    )
+    (or is-admin is-token-contract-caller)
+  )
+
 )
 
 ;; ---------- Admin setup ----------
@@ -80,15 +74,15 @@
 ;; ---------- Public functions ----------
 (define-public (register-github-user (github-username (string-ascii 50)))
   (let (
-        (existing-user (map-get? address-to-github tx-sender))
-        (existing-address (map-get? github-to-address github-username))
-      )
+      (existing-user (map-get? address-to-github tx-sender))
+      (existing-address (map-get? github-to-address github-username))
+    )
     ;; basic validation: non-empty and <= 39 chars (GitHub limit)
     (asserts! (> (len github-username) u0) ERR_BAD_INPUT)
     (asserts! (<= (len github-username) u39) ERR_BAD_INPUT)
 
-    (asserts! (is-none existing-user)     ERR_ALREADY_REGISTERED)
-    (asserts! (is-none existing-address)  ERR_USERNAME_TAKEN)
+    (asserts! (is-none existing-user) ERR_ALREADY_REGISTERED)
+    (asserts! (is-none existing-address) ERR_USERNAME_TAKEN)
 
     (map-set github-to-address github-username tx-sender)
     (map-set address-to-github tx-sender github-username)
@@ -107,17 +101,17 @@
 ;; Allow a user to change their username (releases previous name)
 (define-public (change-github-username (new-name (string-ascii 50)))
   (let (
-        (current (map-get? address-to-github tx-sender))
-        (taken   (map-get? github-to-address new-name))
-      )
-    (asserts! (is-some current)  ERR_NOT_REGISTERED)
+      (current (map-get? address-to-github tx-sender))
+      (taken (map-get? github-to-address new-name))
+    )
+    (asserts! (is-some current) ERR_NOT_REGISTERED)
     (asserts! (> (len new-name) u0) ERR_BAD_INPUT)
     (asserts! (<= (len new-name) u39) ERR_BAD_INPUT)
-    (asserts! (is-none taken)    ERR_USERNAME_TAKEN)
+    (asserts! (is-none taken) ERR_USERNAME_TAKEN)
 
     (map-delete github-to-address (unwrap! current ERR_NOT_REGISTERED))
-    (map-set     github-to-address new-name tx-sender)
-    (map-set     address-to-github tx-sender new-name)
+    (map-set github-to-address new-name tx-sender)
+    (map-set address-to-github tx-sender new-name)
 
     (match (map-get? user-profiles tx-sender) p
       (map-set user-profiles tx-sender
@@ -147,7 +141,7 @@
 ;; ---------- Token/accounting updates ----------
 (define-public (update-earned-tokens (user principal) (amount uint))
   (begin
-    (asserts! (is-ok (require-updater)) ERR_UNAUTHORIZED)
+    (asserts! (require-updater) ERR_UNAUTHORIZED)
     (let ((p (unwrap! (map-get? user-profiles user) ERR_NOT_REGISTERED)))
       (map-set user-profiles user
         (merge p { total-earned: (+ (get total-earned p) amount) }))
@@ -158,7 +152,7 @@
 
 (define-public (update-spent-tokens (user principal) (amount uint))
   (begin
-    (asserts! (is-ok (require-updater)) ERR_UNAUTHORIZED)
+    (asserts! (require-updater) ERR_UNAUTHORIZED)
     (let ((p (unwrap! (map-get? user-profiles user) ERR_NOT_REGISTERED)))
       (map-set user-profiles user
         (merge p { total-spent: (+ (get total-spent p) amount) }))
