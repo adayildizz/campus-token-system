@@ -1,5 +1,5 @@
 ;; This contract implements the SIP-010 community-standard Fungible Token trait.
-;;(impl-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
+(impl-trait 'SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.sip-010-trait)
 
 ;; Define the FT, with no maximum supply
 (define-fungible-token clarity-coin)
@@ -9,7 +9,7 @@
 (define-constant ERR_NOT_TOKEN_OWNER (err u101))
 
 ;; Define constants for contract
-(define-constant CONTRACT_OWNER tx-sender)
+(define-constant CONTRACT_OWNER 'ST2P6SD88KJYXBNDJB0TQCNTV09940WF6NVX6C8J)
 (define-constant TOKEN_URI u"https://hiro.so") ;; utf-8 string with token metadata host
 (define-constant TOKEN_NAME "Clarity Coin")
 (define-constant TOKEN_SYMBOL "CC")
