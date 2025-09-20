@@ -1,0 +1,51 @@
+---
+id: 0
+name: Testnet deployment
+network: testnet
+stacks-node: "https://api.testnet.hiro.so"
+bitcoin-node: "http://blockstack:blockstacksystem@bitcoind.testnet.stacks.co:18332"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - requirement-publish:
+            contract-id: SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait
+            remap-sender: ST2P6SD88KJYXBNDJB0TQCNTV09940WF6NVX6C8J
+            remap-principals:
+              SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9: ST2P6SD88KJYXBNDJB0TQCNTV09940WF6NVX6C8J
+            cost: 4680
+            path: "./.cache/requirements/SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.nft-trait.clar"
+            clarity-version: 1
+        - requirement-publish:
+            contract-id: SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard
+            remap-sender: ST2P6SD88KJYXBNDJB0TQCNTV09940WF6NVX6C8J
+            remap-principals:
+              SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE: ST2P6SD88KJYXBNDJB0TQCNTV09940WF6NVX6C8J
+            cost: 8400
+            path: "./.cache/requirements/SP3FBR2AGK5H9QBDH3EEN6DF8EK8JY7RX8QJ5SVTE.sip-010-trait-ft-standard.clar"
+            clarity-version: 1
+      epoch: "2.0"
+    - id: 1
+      transactions:
+        - contract-publish:
+            contract-name: nft
+            expected-sender: ST2P6SD88KJYXBNDJB0TQCNTV09940WF6NVX6C8J
+            cost: 32215865
+            path: contracts/nft.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: token
+            expected-sender: ST2P6SD88KJYXBNDJB0TQCNTV09940WF6NVX6C8J
+            cost: 32221678
+            path: contracts/token.clar
+            anchor-block-only: true
+            clarity-version: 1
+        - contract-publish:
+            contract-name: buy-ticket-nft
+            expected-sender: ST2P6SD88KJYXBNDJB0TQCNTV09940WF6NVX6C8J
+            cost: 32169361
+            path: contracts/buy-ticket-nft.clar
+            anchor-block-only: true
+            clarity-version: 1
+      epoch: "2.05"
